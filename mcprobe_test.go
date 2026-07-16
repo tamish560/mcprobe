@@ -367,3 +367,103 @@ func TestDiffSnapshots_ResourceChanged(t *testing.T) {
 		t.Errorf("expected resource-changed, got %s", diffs[0].Type)
 	}
 }
+
+func TestScanResourceExposure_SensitivePath(t *testing.T) {
+	tool := Tool{
+		Name:        "file_read",
+		Description: "Read a file",
+		InputSchema: map[string]interface{}{
+			"properties": map[string]interface{}{
+				"path": map[string]interface{}{
+					"type":        "string",
+					"description": "Path like /etc/passwd",
+				},
+			},
+		},
+	}
+	snap := &ServerSnapshot{Tools: []Tool{tool}}
+	result := ScanSnapshot(snap)
+	found := false
+	for _, f := range result.Findings {
+		if f.Category == "resource-exposure" && f.Severity == "HIGH" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("expected HIGH resource-exposure finding for sensitive path")
+	}
+}
+
+func TestScanResourceExposure_CredentialFile(t *testing.T) {
+	tool := Tool{
+		Name:        "config_loader",
+		Description: "Load configuration",
+		InputSchema: map[string]interface{}{
+			"properties": map[string]interface{}{
+				"env_file": map[string]interface{}{
+					"type":        "string",
+					"description": "Path to .env file",
+				},
+			},
+		},
+	}
+	snap := &ServerSnapshot{Tools: []Tool{tool}}
+	result := ScanSnapshot(snap)
+	found := false
+	for _, f := range result.Findings {
+		if f.Category == "resource-exposure" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("expected resource-exposure finding for .env file reference")
+	}
+}
+
+func TestScanResourceExposure_UnrestrictedPath(t *testing.T) {
+	tool := Tool{
+		Name:        "file_write",
+		Description: "Write a file",
+		InputSchema: map[string]interface{}{
+			"properties": map[string]interface{}{
+				"filepath": map[string]interface{}{
+					"type":        "string",
+					"description": "Any file path on the system",
+				},
+			},
+		},
+	}
+	snap := &ServerSnapshot{Tools: []Tool{tool}}
+	result := ScanSnapshot(snap)
+	found := false
+	for _, f := range result.Findings {
+		if f.Category == "resource-exposure" && f.Severity == "MEDIUM" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("expected MEDIUM resource-exposure finding for unrestricted path")
+	}
+}
+
+func TestScanResourceExposure_SafePath(t *testing.T) {
+	tool := Tool{
+		Name:        "file_read",
+		Description: "Read a file from the workspace",
+		InputSchema: map[string]interface{}{
+			"properties": map[string]interface{}{
+				"path": map[string]interface{}{
+					"type":        "string",
+					"description": "Relative path within the workspace directory",
+				},
+			},
+		},
+	}
+	snap := &ServerSnapshot{Tools: []Tool{tool}}
+	result := ScanSnapshot(snap)
+	for _, f := range result.Findings {
+		if f.Category == "resource-exposure" {
+			t.Fatalf("unexpected resource-exposure finding: %s", f.Detail)
+		}
+	}
+}
