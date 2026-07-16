@@ -30,29 +30,29 @@ type Config struct {
 func parseArgs() (*Config, error) {
 	cfg := &Config{}
 
-	flag.StringVar(&cfg.Command, "command", "", "Command to run MCP server via stdio (e.g. 'node server.js')")
-	flag.StringVar(&cfg.Endpoint, "http", "", "HTTP endpoint of MCP server (e.g. http://localhost:3000/mcp)")
-	flag.StringVar(&cfg.SSEEndpoint, "sse", "", "SSE endpoint of MCP server (e.g. http://localhost:3000/sse)")
-	flag.StringVar(&cfg.Format, "format", "text", "Output format: text, json, sarif")
-	flag.StringVar(&cfg.Baseline, "baseline", "", "Save baseline snapshot to file")
-	flag.StringVar(&cfg.Diff, "diff", "", "Compare current server against baseline file")
-	flag.BoolVar(&cfg.Shadow, "shadow", false, "Scan multiple servers for tool shadowing")
-	flag.StringVar(&cfg.ShadowDir, "shadow-dir", "", "Directory of baseline files to check for shadowing")
-	flag.IntVar(&cfg.Timeout, "timeout", 30, "Timeout in seconds")
-	flag.BoolVar(&cfg.ListOnly, "list", false, "Only list tools/prompts/resources, skip security scan")
-	flag.StringVar(&cfg.Output, "out", "", "Write output to file instead of stdout")
+	flag.StringVar(&cfg.Command, "command", "", "command to run MCP server via stdio")
+	flag.StringVar(&cfg.Endpoint, "http", "", "HTTP endpoint of MCP server")
+	flag.StringVar(&cfg.SSEEndpoint, "sse", "", "SSE endpoint of MCP server")
+	flag.StringVar(&cfg.Format, "format", "text", "output format: text, json, sarif")
+	flag.StringVar(&cfg.Baseline, "baseline", "", "save baseline snapshot to file")
+	flag.StringVar(&cfg.Diff, "diff", "", "compare current server against baseline file")
+	flag.BoolVar(&cfg.Shadow, "shadow", false, "scan multiple servers for tool shadowing")
+	flag.StringVar(&cfg.ShadowDir, "shadow-dir", "", "directory of baseline files to check for shadowing")
+	flag.IntVar(&cfg.Timeout, "timeout", 30, "timeout in seconds")
+	flag.BoolVar(&cfg.ListOnly, "list", false, "only list tools/prompts/resources, skip security scan")
+	flag.StringVar(&cfg.Output, "out", "", "write output to file instead of stdout")
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "mcprobe v%s - MCP server security scanner\n\n", version)
-		fmt.Fprintf(os.Stderr, "Usage:\n")
-		fmt.Fprintln(os.Stderr, "  mcprobe -command 'node server.js'                        # scan stdio server")
-		fmt.Fprintln(os.Stderr, "  mcprobe -http http://localhost:3000/mcp                  # scan HTTP server")
-	fmt.Fprintln(os.Stderr, "  mcprobe -sse http://localhost:3000/sse                   # scan SSE server")
-		fmt.Fprintln(os.Stderr, "  mcprobe -command 'node server.js' -baseline snap.json   # save baseline")
-		fmt.Fprintln(os.Stderr, "  mcprobe -command 'node server.js' -diff snap.json       # detect drift")
-		fmt.Fprintln(os.Stderr, "  mcprobe -shadow -shadow-dir ./baselines/                 # check tool shadowing")
-		fmt.Fprintln(os.Stderr, "  mcprobe -command 'node server.js' -format sarif         # SARIF output for CI")
-		fmt.Fprintf(os.Stderr, "\nFlags:\n")
+		fmt.Fprintf(os.Stderr, "mcprobe v%s\n\n", version)
+		fmt.Fprintf(os.Stderr, "usage:\n")
+		fmt.Fprintln(os.Stderr, "  mcprobe -command 'node server.js'")
+		fmt.Fprintln(os.Stderr, "  mcprobe -http http://localhost:3000/mcp")
+		fmt.Fprintln(os.Stderr, "  mcprobe -sse http://localhost:3000/sse")
+		fmt.Fprintln(os.Stderr, "  mcprobe -command 'node server.js' -baseline snap.json")
+		fmt.Fprintln(os.Stderr, "  mcprobe -command 'node server.js' -diff snap.json")
+		fmt.Fprintln(os.Stderr, "  mcprobe -shadow -shadow-dir ./baselines/")
+		fmt.Fprintln(os.Stderr, "  mcprobe -command 'node server.js' -format sarif")
+		fmt.Fprintf(os.Stderr, "\nflags:\n")
 		flag.PrintDefaults()
 	}
 
@@ -63,7 +63,7 @@ func parseArgs() (*Config, error) {
 func main() {
 	cfg, err := parseArgs()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
 
@@ -83,12 +83,12 @@ func main() {
 	if cfg.Command != "" {
 		parts := strings.Fields(cfg.Command)
 		if len(parts) == 0 {
-			fmt.Fprintf(os.Stderr, "error: empty command\n")
+			fmt.Fprintf(os.Stderr, "empty command. you gave me nothing to run.\n")
 			os.Exit(1)
 		}
 		snap, err := scanStdio(ctx, parts[0], parts[1:], cfg)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)
 		}
 		outputResult(snap, cfg)
@@ -98,7 +98,7 @@ func main() {
 	if cfg.Endpoint != "" {
 		snap, err := scanHTTP(ctx, cfg.Endpoint, cfg)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)
 		}
 		outputResult(snap, cfg)
@@ -108,7 +108,7 @@ func main() {
 	if cfg.SSEEndpoint != "" {
 		snap, err := scanSSE(ctx, cfg.SSEEndpoint, cfg)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)
 		}
 		outputResult(snap, cfg)
@@ -166,7 +166,7 @@ func processSnapshot(snap *ServerSnapshot, cfg *Config) (*ScanResult, error) {
 		if err := SaveBaseline(snap, cfg.Baseline); err != nil {
 			return nil, fmt.Errorf("save baseline: %w", err)
 		}
-		fmt.Fprintf(os.Stderr, "Baseline saved to %s\n", cfg.Baseline)
+		fmt.Fprintf(os.Stderr, "baseline saved to %s. come back when something changes.\n", cfg.Baseline)
 	}
 
 	if cfg.Diff != "" {
@@ -176,12 +176,14 @@ func processSnapshot(snap *ServerSnapshot, cfg *Config) (*ScanResult, error) {
 		}
 		diffs := DiffSnapshots(&old.Snapshot, snap)
 		if len(diffs) > 0 {
-			fmt.Fprintf(os.Stderr, "DRIFT DETECTED (%d changes)\n", len(diffs))
+			fmt.Fprintf(os.Stderr, "drift detected. %d changes since your last baseline.\n", len(diffs))
+			fmt.Fprintf(os.Stderr, "someone updated the server. or someone replaced it.\n")
+			fmt.Fprintf(os.Stderr, "either way, you trusted the old version. do you trust the new one?\n\n")
 			for _, d := range diffs {
 				fmt.Fprintf(os.Stderr, "  %s\n", formatDiff(d))
 			}
 		} else {
-			fmt.Fprintf(os.Stderr, "No drift detected. Server matches baseline.\n")
+			fmt.Fprintf(os.Stderr, "no drift. server matches baseline. for now.\n")
 		}
 	}
 
@@ -200,13 +202,13 @@ func processSnapshot(snap *ServerSnapshot, cfg *Config) (*ScanResult, error) {
 
 func runShadowCheck(ctx context.Context, cfg *Config) {
 	if cfg.ShadowDir == "" {
-		fmt.Fprintf(os.Stderr, "error: -shadow requires -shadow-dir\n")
+		fmt.Fprintf(os.Stderr, "-shadow needs -shadow-dir. you forgot the directory.\n")
 		os.Exit(1)
 	}
 
 	entries, err := os.ReadDir(cfg.ShadowDir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error reading dir: %v\n", err)
+		fmt.Fprintf(os.Stderr, "can't read that directory: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -221,7 +223,7 @@ func runShadowCheck(ctx context.Context, cfg *Config) {
 		path := fmt.Sprintf("%s/%s", cfg.ShadowDir, entry.Name())
 		baseline, err := LoadBaseline(path)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "warning: skip %s: %v\n", entry.Name(), err)
+			fmt.Fprintf(os.Stderr, "skip %s: %v\n", entry.Name(), err)
 			continue
 		}
 		name := strings.TrimSuffix(entry.Name(), ".json")
@@ -229,21 +231,21 @@ func runShadowCheck(ctx context.Context, cfg *Config) {
 	}
 
 	if len(snapshots) < 2 {
-		fmt.Fprintf(os.Stderr, "need at least 2 baseline files for shadow detection, found %d\n", len(snapshots))
+		fmt.Fprintf(os.Stderr, "need at least 2 baseline files. found %d. shadowing needs more than one server.\n", len(snapshots))
 		os.Exit(1)
 	}
 
 	conflicts := DetectShadowing(snapshots)
 	if len(conflicts) == 0 {
-		fmt.Printf("No tool shadowing conflicts detected across %d servers.\n", len(snapshots))
+		fmt.Printf("no shadowing across %d servers. this time.\n", len(snapshots))
 		return
 	}
 
-	fmt.Printf("TOOL SHADOWING DETECTED (%d conflicts)\n", len(conflicts))
+	fmt.Printf("shadowing detected. %d conflicts.\n", len(conflicts))
 	fmt.Println("========================================")
 	for _, c := range conflicts {
 		fmt.Printf("[%s] %s\n", c.Severity, c.ToolName)
-		fmt.Printf("   Servers: %s\n", strings.Join(c.Servers, ", "))
+		fmt.Printf("   servers: %s\n", strings.Join(c.Servers, ", "))
 		fmt.Printf("   %s\n\n", c.Detail)
 	}
 }
@@ -262,16 +264,16 @@ func outputResult(result *ScanResult, cfg *Config) {
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error rendering: %v\n", err)
+		fmt.Fprintf(os.Stderr, "rendering failed: %v\n", err)
 		os.Exit(1)
 	}
 
 	if cfg.Output != "" {
 		if err := os.WriteFile(cfg.Output, []byte(output), 0644); err != nil {
-			fmt.Fprintf(os.Stderr, "error writing file: %v\n", err)
+			fmt.Fprintf(os.Stderr, "can't write that file: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Fprintf(os.Stderr, "Report written to %s\n", cfg.Output)
+		fmt.Fprintf(os.Stderr, "report written to %s\n", cfg.Output)
 	} else {
 		fmt.Println(output)
 	}
