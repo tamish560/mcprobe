@@ -73,6 +73,7 @@ func ScanSnapshot(snap *ServerSnapshot) *ScanResult {
 	for _, tool := range snap.Tools {
 		scanToolDescription(&tool, result)
 		scanToolSchema(&tool, result)
+		scanResourceExposure(&tool, result)
 	}
 
 	for _, prompt := range snap.Prompts {
@@ -217,6 +218,68 @@ func scanResource(resource *Resource, result *ScanResult) {
 			Title:    "Resource URI contains path traversal",
 			Detail:   fmt.Sprintf("Resource '%s' URI '%s' contains '..' which may allow path traversal", resource.Name, resource.URI),
 		})
+	}
+}
+
+
+
+var sensitivePathPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`(?i)/(etc|root|var|proc|sys)(/|$)`),
+	regexp.MustCompile(`(?i)/(home|Users)[^/]*/\.(ssh|gnupg|aws|config)`),
+	regexp.MustCompile(`(?i)\.(env|pem|key|pfx|p12|keystore)`),
+	regexp.MustCompile(`(?i)(password|secret|token|credential|apikey|api_key)`),
+}
+
+func scanResourceExposure(tool *Tool, result *ScanResult) {
+	if tool.InputSchema == nil {
+		return
+	}
+
+	props, ok := tool.InputSchema["properties"].(map[string]interface{})
+	if !ok {
+		return
+	}
+
+	for propName, propVal := range props {
+		propMap, ok := propVal.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		propType, _ := propMap["type"].(string)
+		if propType != "string" {
+			continue
+		}
+
+		desc, _ := propMap["description"].(string)
+		combined := propName + " " + desc
+
+		for _, p := range sensitivePathPatterns {
+			if p.MatchString(combined) {
+				result.Findings = append(result.Findings, Finding{
+					Severity:   "HIGH",
+					Category:   "resource-exposure",
+					Title:      "Tool parameter references sensitive path or credential",
+					Detail:     fmt.Sprintf("Tool '%s' parameter '%s' appears to reference sensitive files or credentials", tool.Name, propName),
+					ToolName:   tool.Name,
+					Evidence:   p.String(),
+					Suggestion: "Restrict parameter to safe directories or validate input against an allowlist",
+				})
+			}
+		}
+
+		if strings.Contains(strings.ToLower(propName), "path") || strings.Contains(strings.ToLower(propName), "file") || strings.Contains(strings.ToLower(propName), "dir") {
+			if desc == "" || strings.Contains(strings.ToLower(desc), "any") || strings.Contains(strings.ToLower(desc), "arbitrary") {
+				result.Findings = append(result.Findings, Finding{
+					Severity:   "MEDIUM",
+					Category:   "resource-exposure",
+					Title:      "Tool accepts unrestricted file path",
+					Detail:     fmt.Sprintf("Tool '%s' parameter '%s' accepts file paths without documented restrictions", tool.Name, propName),
+					ToolName:   tool.Name,
+					Suggestion: "Document allowed paths or add path validation in the tool implementation",
+				})
+			}
+		}
 	}
 }
 
