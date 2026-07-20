@@ -12,6 +12,8 @@ it introspects any MCP server, reads every tool description, every schema, every
 
 single binary. zero dependencies. go stdlib only.
 
+we used it to scan 17 npm MCP servers. 11 had security findings. 3 had prompt injection in tool descriptions. the results are on the [MCP security leaderboard](https://valtors.github.io/valtors-landing/mcp-security-leaderboard.html).
+
 ## checks
 
 | check | severity | what it finds |
@@ -46,6 +48,12 @@ scan a stdio server:
 
 ```
 mcprobe -command 'node server.js'
+```
+
+scan an npm package directly:
+
+```
+mcprobe -command 'npx -y @some/mcp-server'
 ```
 
 scan an HTTP server:
@@ -124,7 +132,7 @@ exit codes:
 - "base64 decode"
 - "override safety/policy/guardrail"
 
-this is not hypothetical. these patterns exist in real MCP servers. people connect them to agents without checking.
+this is not hypothetical. these patterns exist in real MCP servers. we found them. people connect them to agents without checking.
 
 ### tool shadowing (HIGH/CRITICAL)
 
@@ -161,6 +169,8 @@ you trusted the server. you ran `mcprobe -baseline`. it was clean. three weeks l
 | 25-49 | MEDIUM |
 | 50-74 | HIGH |
 | 75-100 | CRITICAL |
+
+a score of 0 doesn't mean safe. it means we didn't find anything. there's a difference. you should know the difference.
 
 ## architecture
 
