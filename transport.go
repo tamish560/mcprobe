@@ -19,12 +19,12 @@ type Transport interface {
 }
 
 type StdioTransport struct {
-	cmd    *exec.Cmd
-	stdin  io.WriteCloser
-	stdout io.ReadCloser
-	mu     sync.Mutex
-	nextID int
-	pending map[int]chan map[string]interface{}
+	cmd        *exec.Cmd
+	stdin      io.WriteCloser
+	stdout     io.ReadCloser
+	mu         sync.Mutex
+	nextID     int
+	pending    map[int]chan map[string]interface{}
 	readerDone chan struct{}
 }
 
@@ -42,10 +42,10 @@ func NewStdioTransport(ctx context.Context, command string, args ...string) (*St
 		return nil, fmt.Errorf("start process: %w", err)
 	}
 	t := &StdioTransport{
-		cmd:      cmd,
-		stdin:    stdin,
-		stdout:   stdout,
-		pending:  make(map[int]chan map[string]interface{}),
+		cmd:        cmd,
+		stdin:      stdin,
+		stdout:     stdout,
+		pending:    make(map[int]chan map[string]interface{}),
 		readerDone: make(chan struct{}),
 	}
 	go t.readLoop()

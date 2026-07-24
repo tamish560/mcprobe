@@ -13,18 +13,18 @@ import (
 var version = "0.1.0"
 
 type Config struct {
-	Command    string
-	Args       []string
-	Endpoint   string
+	Command     string
+	Args        []string
+	Endpoint    string
 	SSEEndpoint string
-	Format     string
-	Baseline   string
-	Diff       string
-	Shadow     bool
-	ShadowDir  string
-	Timeout    int
-	ListOnly   bool
-	Output     string
+	Format      string
+	Baseline    string
+	Diff        string
+	Shadow      bool
+	ShadowDir   string
+	Timeout     int
+	ListOnly    bool
+	Output      string
 }
 
 func parseArgs() (*Config, error) {

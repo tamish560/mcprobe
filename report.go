@@ -7,13 +7,13 @@ import (
 )
 
 type SARIFReport struct {
-	Schema   string           `json:"$schema"`
-	Version  string           `json:"version"`
-	Runs     []SARIFRun       `json:"runs"`
+	Schema  string     `json:"$schema"`
+	Version string     `json:"version"`
+	Runs    []SARIFRun `json:"runs"`
 }
 
 type SARIFRun struct {
-	Tool    SARIFTool    `json:"tool"`
+	Tool    SARIFTool     `json:"tool"`
 	Results []SARIFResult `json:"results"`
 }
 
@@ -22,10 +22,10 @@ type SARIFTool struct {
 }
 
 type SARIFDriver struct {
-	Name           string           `json:"name"`
-	Version        string           `json:"version"`
-	InformationURI string           `json:"informationUri"`
-	Rules          []SARIFRule      `json:"rules"`
+	Name           string      `json:"name"`
+	Version        string      `json:"version"`
+	InformationURI string      `json:"informationUri"`
+	Rules          []SARIFRule `json:"rules"`
 }
 
 type SARIFRule struct {
@@ -37,9 +37,9 @@ type SARIFRule struct {
 }
 
 type SARIFResult struct {
-	RuleID    string         `json:"ruleId"`
-	Level     string         `json:"level"`
-	Message   struct {
+	RuleID  string `json:"ruleId"`
+	Level   string `json:"level"`
+	Message struct {
 		Text string `json:"text"`
 	} `json:"message"`
 	Locations []SARIFLocation `json:"locations,omitempty"`

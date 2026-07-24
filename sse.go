@@ -12,14 +12,14 @@ import (
 )
 
 type SSETransport struct {
-	endpoint    string
-	client      *http.Client
+	endpoint     string
+	client       *http.Client
 	postEndpoint string
-	nextID      int
-	mu          sync.Mutex
-	reader      io.ReadCloser
-	readerDone  chan struct{}
-	pending     map[int]chan map[string]interface{}
+	nextID       int
+	mu           sync.Mutex
+	reader       io.ReadCloser
+	readerDone   chan struct{}
+	pending      map[int]chan map[string]interface{}
 }
 
 func NewSSETransport(endpoint string) (*SSETransport, error) {

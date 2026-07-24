@@ -9,10 +9,10 @@ import (
 )
 
 type Baseline struct {
-	ServerName  string          `json:"serverName"`
-	CreatedAt   string          `json:"createdAt"`
-	Snapshot    ServerSnapshot  `json:"snapshot"`
-	Hash        string          `json:"hash"`
+	ServerName string         `json:"serverName"`
+	CreatedAt  string         `json:"createdAt"`
+	Snapshot   ServerSnapshot `json:"snapshot"`
+	Hash       string         `json:"hash"`
 }
 
 type Diff struct {

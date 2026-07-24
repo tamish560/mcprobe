@@ -13,8 +13,8 @@ type Tool struct {
 }
 
 type Prompt struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
+	Name        string                   `json:"name"`
+	Description string                   `json:"description"`
 	Arguments   []map[string]interface{} `json:"arguments"`
 }
 
@@ -37,11 +37,11 @@ type ServerCapabilities struct {
 }
 
 type ServerSnapshot struct {
-	Info     ServerInfo        `json:"serverInfo"`
-	Caps     ServerCapabilities `json:"capabilities"`
-	Tools    []Tool            `json:"tools"`
-	Prompts []Prompt          `json:"prompts"`
-	Resources []Resource      `json:"resources"`
+	Info      ServerInfo         `json:"serverInfo"`
+	Caps      ServerCapabilities `json:"capabilities"`
+	Tools     []Tool             `json:"tools"`
+	Prompts   []Prompt           `json:"prompts"`
+	Resources []Resource         `json:"resources"`
 }
 
 type Client struct {

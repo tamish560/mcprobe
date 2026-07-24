@@ -17,22 +17,22 @@ type Finding struct {
 }
 
 type ShadowConflict struct {
-	ToolName  string `json:"toolName"`
-	Servers   []string `json:"servers"`
-	Severity  string `json:"severity"`
-	Detail    string `json:"detail"`
+	ToolName string   `json:"toolName"`
+	Servers  []string `json:"servers"`
+	Severity string   `json:"severity"`
+	Detail   string   `json:"detail"`
 }
 
 type ScanResult struct {
-	Server     ServerInfo        `json:"serverInfo"`
-	Tools      []Tool            `json:"tools"`
-	Prompts    []Prompt          `json:"prompts"`
-	Resources  []Resource        `json:"resources"`
-	Findings   []Finding         `json:"findings"`
-	Shadows    []ShadowConflict  `json:"shadowConflicts"`
-	RiskScore  float64           `json:"riskScore"`
-	RiskLevel  string            `json:"riskLevel"`
-	ToolCount  int               `json:"toolCount"`
+	Server    ServerInfo       `json:"serverInfo"`
+	Tools     []Tool           `json:"tools"`
+	Prompts   []Prompt         `json:"prompts"`
+	Resources []Resource       `json:"resources"`
+	Findings  []Finding        `json:"findings"`
+	Shadows   []ShadowConflict `json:"shadowConflicts"`
+	RiskScore float64          `json:"riskScore"`
+	RiskLevel string           `json:"riskLevel"`
+	ToolCount int              `json:"toolCount"`
 }
 
 var injectionPatterns = []*regexp.Regexp{
@@ -98,7 +98,7 @@ func scanToolDescription(tool *Tool, result *ScanResult) {
 			Title:      "no description",
 			Detail:     fmt.Sprintf("tool '%s' has no description. the model will guess what it does. the model will guess wrong.", tool.Name),
 			ToolName:   tool.Name,
-			Suggestion:  "write a description. it's not optional.",
+			Suggestion: "write a description. it's not optional.",
 		})
 		return
 	}
@@ -112,7 +112,7 @@ func scanToolDescription(tool *Tool, result *ScanResult) {
 				Detail:     fmt.Sprintf("tool '%s' has injection text in its description. a model will follow it. this is not a warning. this is what will happen.", tool.Name),
 				ToolName:   tool.Name,
 				Evidence:   p.String(),
-				Suggestion:  "remove the instruction text. or don't. see what happens.",
+				Suggestion: "remove the instruction text. or don't. see what happens.",
 			})
 		}
 	}
@@ -124,7 +124,7 @@ func scanToolDescription(tool *Tool, result *ScanResult) {
 			Title:      "description is too long",
 			Detail:     fmt.Sprintf("tool '%s' description is %d characters. nobody reads that. including the model. something could be hiding in there.", tool.Name, len(tool.Description)),
 			ToolName:   tool.Name,
-			Suggestion:  "cut it down. if you need 2000 chars to describe a tool, the tool does too much.",
+			Suggestion: "cut it down. if you need 2000 chars to describe a tool, the tool does too much.",
 		})
 	}
 }
@@ -137,7 +137,7 @@ func scanToolSchema(tool *Tool, result *ScanResult) {
 			Title:      "no input schema",
 			Detail:     fmt.Sprintf("tool '%s' has no schema. the model will send whatever it wants. you will receive whatever it sends.", tool.Name),
 			ToolName:   tool.Name,
-			Suggestion:  "define a schema. or enjoy the chaos.",
+			Suggestion: "define a schema. or enjoy the chaos.",
 		})
 		return
 	}
@@ -158,7 +158,7 @@ func scanToolSchema(tool *Tool, result *ScanResult) {
 							Detail:     fmt.Sprintf("tool '%s' property '%s' has injection text. you put it in the schema. the model reads the schema. good luck.", tool.Name, propName),
 							ToolName:   tool.Name,
 							Evidence:   p.String(),
-							Suggestion:  "remove it.",
+							Suggestion: "remove it.",
 						})
 					}
 				}
@@ -168,11 +168,11 @@ func scanToolSchema(tool *Tool, result *ScanResult) {
 
 	if req, ok := tool.InputSchema["required"].([]interface{}); ok && len(req) > 10 {
 		result.Findings = append(result.Findings, Finding{
-			Severity:   "LOW",
-			Category:   "complex-schema",
-			Title:      "too many required fields",
-			Detail:     fmt.Sprintf("tool '%s' has %d required fields. that's not a tool. that's a form.", tool.Name, len(req)),
-			ToolName:   tool.Name,
+			Severity: "LOW",
+			Category: "complex-schema",
+			Title:    "too many required fields",
+			Detail:   fmt.Sprintf("tool '%s' has %d required fields. that's not a tool. that's a form.", tool.Name, len(req)),
+			ToolName: tool.Name,
 		})
 	}
 }
@@ -221,7 +221,6 @@ func scanResource(resource *Resource, result *ScanResult) {
 	}
 }
 
-
 var sensitivePathPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`(?i)/(etc|root|var|proc|sys)(/|$)`),
 	regexp.MustCompile(`(?i)/(home|Users)[^/]*/\.(ssh|gnupg|aws|config)`),
@@ -262,7 +261,7 @@ func scanResourceExposure(tool *Tool, result *ScanResult) {
 					Detail:     fmt.Sprintf("tool '%s' parameter '%s' references sensitive files or credentials. /etc, .ssh, .env, keys. you connected this to your agent. think about that.", tool.Name, propName),
 					ToolName:   tool.Name,
 					Evidence:   p.String(),
-					Suggestion:  "restrict the parameter. or don't. it's your server.",
+					Suggestion: "restrict the parameter. or don't. it's your server.",
 				})
 			}
 		}
@@ -275,7 +274,7 @@ func scanResourceExposure(tool *Tool, result *ScanResult) {
 					Title:      "unrestricted file access",
 					Detail:     fmt.Sprintf("tool '%s' parameter '%s' takes any file path. /etc/passwd. your ssh keys. your .env. nothing stops it. but the README has a nice logo so it's probably fine.", tool.Name, propName),
 					ToolName:   tool.Name,
-					Suggestion:  "add path validation. or keep pretending nothing will go wrong.",
+					Suggestion: "add path validation. or keep pretending nothing will go wrong.",
 				})
 			}
 		}
