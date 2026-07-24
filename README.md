@@ -4,7 +4,7 @@
 [![Go Version](https://img.shields.io/badge/Go-1.23-00ADD8?style=flat-square&logo=go)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0F172A?style=flat-square)](./LICENSE)
 [![Release](https://img.shields.io/github/v/release/tamish560/mcprobe?style=flat-square&label=release)](https://github.com/tamish560/mcprobe/releases)
-[![Tests](https://img.shields.io/badge/tests-23%20passing-22C55E?style=flat-square)](./mcprobe_test.go)
+[![Tests](https://img.shields.io/badge/tests-55%20passing-22C55E?style=flat-square)](./mcprobe_test.go)
 
 you're connecting random MCP servers to your agent. you haven't checked them. mcprobe checks them.
 
@@ -181,7 +181,11 @@ scanner.go     security analysis engine, pattern detection
 baseline.go    snapshot persistence, drift detection
 report.go      text, JSON, SARIF output
 main.go        CLI entry point
-mcprobe_test.go  23 tests
+mcprobe_test.go     22 tests
+report_test.go    6 tests
+client_test.go   14 tests
+baseline_test.go  16 tests
+transport_test.go 4 tests
 ```
 
 no external dependencies. pure go stdlib. one static binary.
