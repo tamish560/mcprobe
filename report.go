@@ -126,7 +126,7 @@ func RenderSARIF(result *ScanResult) (string, error) {
 			rules = append(rules, rule)
 		}
 
-		level := "warning"
+		var level string
 		switch f.Severity {
 		case "CRITICAL", "HIGH":
 			level = "error"
