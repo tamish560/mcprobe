@@ -60,9 +60,10 @@ func (t *SSETransport) readLoop() {
 		} else if strings.HasPrefix(line, "data: ") {
 			data = strings.TrimPrefix(line, "data: ")
 		} else if line == "" && data != "" {
-			if event == "endpoint" {
+			switch event {
+			case "endpoint":
 				t.postEndpoint = data
-			} else if event == "message" {
+			case "message":
 				var msg map[string]interface{}
 				if err := json.Unmarshal([]byte(data), &msg); err == nil {
 					if idVal, ok := msg["id"]; ok {

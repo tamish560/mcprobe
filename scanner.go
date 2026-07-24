@@ -56,11 +56,6 @@ var injectionPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`(?i)(?:override|replace|intercept|hook)\s+(?:safety|policy|guardrail|alignment)`),
 }
 
-var suspiciousToolNamePatterns = []*regexp.Regexp{
-	regexp.MustCompile(`(?i)(?:read|write|exec|run|delete|remove|kill|stop|drop)\w*`),
-	regexp.MustCompile(`(?i)(?:file|shell|system|process|env|secret|token|key)\w*`),
-}
-
 func ScanSnapshot(snap *ServerSnapshot) *ScanResult {
 	result := &ScanResult{
 		Server:    snap.Info,

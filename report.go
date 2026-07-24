@@ -58,9 +58,9 @@ func RenderText(result *ScanResult) string {
 
 	sb.WriteString("mcprobe\n")
 	sb.WriteString("========================================\n\n")
-	sb.WriteString(fmt.Sprintf("server: %s v%s\n", result.Server.Name, result.Server.Version))
-	sb.WriteString(fmt.Sprintf("tools: %d  prompts: %d  resources: %d\n", len(result.Tools), len(result.Prompts), len(result.Resources)))
-	sb.WriteString(fmt.Sprintf("risk: %.0f/100  %s\n\n", result.RiskScore, result.RiskLevel))
+	fmt.Fprintf(&sb, "server: %s v%s\n", result.Server.Name, result.Server.Version)
+	fmt.Fprintf(&sb, "tools: %d  prompts: %d  resources: %d\n", len(result.Tools), len(result.Prompts), len(result.Resources))
+	fmt.Fprintf(&sb, "risk: %.0f/100  %s\n\n", result.RiskScore, result.RiskLevel)
 
 	if len(result.Findings) == 0 && len(result.Shadows) == 0 {
 		sb.WriteString("no findings. server looks clean.\n")
@@ -70,31 +70,31 @@ func RenderText(result *ScanResult) string {
 	}
 
 	if len(result.Findings) > 0 {
-		sb.WriteString(fmt.Sprintf("%d problems\n", len(result.Findings)))
+		fmt.Fprintf(&sb, "%d problems\n", len(result.Findings))
 		sb.WriteString("----------------------------------------\n")
 		for i, f := range result.Findings {
-			sb.WriteString(fmt.Sprintf("%d. [%s] %s\n", i+1, f.Severity, f.Title))
+			fmt.Fprintf(&sb, "%d. [%s] %s\n", i+1, f.Severity, f.Title)
 			if f.ToolName != "" {
-				sb.WriteString(fmt.Sprintf("   tool: %s\n", f.ToolName))
+				fmt.Fprintf(&sb, "   tool: %s\n", f.ToolName)
 			}
-			sb.WriteString(fmt.Sprintf("   %s\n", f.Detail))
+			fmt.Fprintf(&sb, "   %s\n", f.Detail)
 			if f.Evidence != "" {
-				sb.WriteString(fmt.Sprintf("   pattern: %s\n", f.Evidence))
+				fmt.Fprintf(&sb, "   pattern: %s\n", f.Evidence)
 			}
 			if f.Suggestion != "" {
-				sb.WriteString(fmt.Sprintf("   fix: %s\n", f.Suggestion))
+				fmt.Fprintf(&sb, "   fix: %s\n", f.Suggestion)
 			}
 			sb.WriteString("\n")
 		}
 	}
 
 	if len(result.Shadows) > 0 {
-		sb.WriteString(fmt.Sprintf("shadowing (%d)\n", len(result.Shadows)))
+		fmt.Fprintf(&sb, "shadowing (%d)\n", len(result.Shadows))
 		sb.WriteString("----------------------------------------\n")
 		for _, s := range result.Shadows {
-			sb.WriteString(fmt.Sprintf("[%s] %s\n", s.Severity, s.ToolName))
-			sb.WriteString(fmt.Sprintf("   servers: %s\n", strings.Join(s.Servers, ", ")))
-			sb.WriteString(fmt.Sprintf("   %s\n\n", s.Detail))
+			fmt.Fprintf(&sb, "[%s] %s\n", s.Severity, s.ToolName)
+			fmt.Fprintf(&sb, "   servers: %s\n", strings.Join(s.Servers, ", "))
+			fmt.Fprintf(&sb, "   %s\n\n", s.Detail)
 		}
 	}
 
