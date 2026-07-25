@@ -4,7 +4,7 @@
 [![Go Version](https://img.shields.io/badge/Go-1.23-00ADD8?style=flat-square&logo=go)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0F172A?style=flat-square)](./LICENSE)
 [![Release](https://img.shields.io/github/v/release/tamish560/mcprobe?style=flat-square&label=release)](https://github.com/tamish560/mcprobe/releases)
-[![Tests](https://img.shields.io/badge/tests-55%20passing-22C55E?style=flat-square)](./mcprobe_test.go)
+[![Tests](https://img.shields.io/badge/tests-87%20passing-22C55E?style=flat-square)](./mcprobe_test.go)
 
 you're connecting random MCP servers to your agent. you haven't checked them. mcprobe checks them.
 
@@ -13,6 +13,21 @@ it introspects any MCP server, reads every tool description, every schema, every
 single binary. zero dependencies. go stdlib only.
 
 we used it to scan 17 npm MCP servers. 11 had security findings. 3 had prompt injection in tool descriptions. the results are on the [MCP security leaderboard](https://valtors.github.io/valtors-landing/mcp-security-leaderboard.html).
+
+
+## why not just X
+
+| | semgrep | snyk code | mcprobe |
+|---|---|---|---|
+| MCP protocol aware | no | no | yes |
+| checks tool descriptions | no | no | yes |
+| detects prompt injection | partial | no | yes (18 patterns) |
+| baseline drift detection | no | no | yes |
+| tool shadowing | no | no | yes |
+| runs in CI (SARIF) | yes | yes | yes |
+| cost | freemium | paid | free |
+
+semgrep finds code bugs. snyk finds dependencies with CVEs. neither knows what an MCP server is. mcprobe is the only scanner built for the MCP protocol: it reads tool schemas, checks resource URIs, detects prompt injection in descriptions, and catches rug-pulls with baseline diffing.
 
 ## checks
 
@@ -183,9 +198,13 @@ report.go      text, JSON, SARIF output
 main.go        CLI entry point
 mcprobe_test.go     22 tests
 report_test.go    6 tests
-client_test.go   14 tests
+client_test.go   17 tests
 baseline_test.go  16 tests
-transport_test.go 4 tests
+transport_test.go  4 tests
+scanner_extra_test.go  9 tests
+main_test.go      9 tests
+
+total: 87 tests. 52.5% coverage. all pass.
 ```
 
 no external dependencies. pure go stdlib. one static binary.
