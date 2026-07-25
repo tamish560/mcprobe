@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -113,5 +114,86 @@ func TestParseArgs_Diff(t *testing.T) {
 func TestVersion(t *testing.T) {
 	if version == "" {
 		t.Error("expected non-empty version")
+	}
+}
+
+func TestProcessSnapshot_ListOnly(t *testing.T) {
+	snap := &ServerSnapshot{
+		Info: ServerInfo{Name: "test", Version: "1.0"},
+		Tools: []Tool{
+			{Name: "echo", Description: "echo tool"},
+		},
+	}
+	cfg := &Config{ListOnly: true}
+	result, err := processSnapshot(snap, cfg)
+	if err != nil {
+		t.Fatalf("processSnapshot: %v", err)
+	}
+	if result.Server.Name != "test" {
+		t.Errorf("expected test, got %s", result.Server.Name)
+	}
+	if len(result.Tools) != 1 {
+		t.Errorf("expected 1 tool, got %d", len(result.Tools))
+	}
+}
+
+func TestProcessSnapshot_WithBaseline(t *testing.T) {
+	dir := t.TempDir()
+	baselinePath := filepath.Join(dir, "baseline.json")
+	snap := &ServerSnapshot{
+		Info: ServerInfo{Name: "test", Version: "1.0"},
+		Tools: []Tool{
+			{Name: "echo", Description: "echo tool"},
+		},
+	}
+	cfg := &Config{Baseline: baselinePath, ListOnly: true}
+	result, err := processSnapshot(snap, cfg)
+	if err != nil {
+		t.Fatalf("processSnapshot: %v", err)
+	}
+	if result == nil {
+		t.Fatal("expected non-nil result")
+	}
+}
+
+func TestProcessSnapshot_WithDiff(t *testing.T) {
+	dir := t.TempDir()
+	baselinePath := filepath.Join(dir, "baseline.json")
+	snap := &ServerSnapshot{
+		Info: ServerInfo{Name: "test", Version: "1.0"},
+		Tools: []Tool{
+			{Name: "echo", Description: "echo tool"},
+		},
+	}
+	cfg := &Config{Baseline: baselinePath}
+	_, err := processSnapshot(snap, cfg)
+	if err != nil {
+		t.Fatalf("processSnapshot baseline: %v", err)
+	}
+	cfg2 := &Config{Diff: baselinePath}
+	result, err := processSnapshot(snap, cfg2)
+	if err != nil {
+		t.Fatalf("processSnapshot diff: %v", err)
+	}
+	if result == nil {
+		t.Fatal("expected non-nil result")
+	}
+}
+
+func TestProcessSnapshot_WithShadow(t *testing.T) {
+	snap := &ServerSnapshot{
+		Info: ServerInfo{Name: "test", Version: "1.0"},
+		Tools: []Tool{
+			{Name: "echo", Description: "echo tool"},
+			{Name: "shell", Description: "shell exec"},
+		},
+	}
+	cfg := &Config{Shadow: true, ListOnly: true}
+	result, err := processSnapshot(snap, cfg)
+	if err != nil {
+		t.Fatalf("processSnapshot: %v", err)
+	}
+	if result == nil {
+		t.Fatal("expected non-nil result")
 	}
 }
