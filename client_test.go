@@ -302,3 +302,30 @@ func TestServerSnapshot_JSON(t *testing.T) {
 		t.Error("expected non-empty JSON")
 	}
 }
+
+func TestClient_ListPrompts_Error(t *testing.T) {
+	c := NewClient(NewHTTPTransport("http://localhost:1"))
+	defer c.Close()
+	_, err := c.ListPrompts(context.Background())
+	if err == nil {
+		t.Error("expected error for unreachable server")
+	}
+}
+
+func TestClient_ListResources_Error(t *testing.T) {
+	c := NewClient(NewHTTPTransport("http://localhost:1"))
+	defer c.Close()
+	_, err := c.ListResources(context.Background())
+	if err == nil {
+		t.Error("expected error for unreachable server")
+	}
+}
+
+func TestClient_Snapshot_Error(t *testing.T) {
+	c := NewClient(NewHTTPTransport("http://localhost:1"))
+	defer c.Close()
+	_, err := c.Snapshot(context.Background())
+	if err == nil {
+		t.Error("expected error for unreachable server")
+	}
+}
