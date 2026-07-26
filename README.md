@@ -204,7 +204,7 @@ transport_test.go  4 tests
 scanner_extra_test.go  9 tests
 main_test.go      9 tests
 
-total: 87 tests. 52.5% coverage. all pass.
+total: 97 tests. 58.5% coverage. 52.5% coverage. all pass.
 ```
 
 no external dependencies. pure go stdlib. one static binary.
