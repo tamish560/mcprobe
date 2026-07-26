@@ -140,8 +140,8 @@ func TestRenderText_NoShadow(t *testing.T) {
 
 func TestRenderText_WithShadow(t *testing.T) {
 	result := &ScanResult{
-		Server:    ServerInfo{Name: "test-server", Version: "1.0"},
-		Tools:     []Tool{{Name: "read"}, {Name: "write"}},
+		Server: ServerInfo{Name: "test-server", Version: "1.0"},
+		Tools:  []Tool{{Name: "read"}, {Name: "write"}},
 		Shadows: []ShadowConflict{
 			{ToolName: "read_file", Severity: "HIGH", Detail: "reads outside allowed paths", Servers: []string{"srv1", "srv2"}},
 		},
