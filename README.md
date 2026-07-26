@@ -209,6 +209,12 @@ total: 97 tests. 58.5% coverage. 52.5% coverage. all pass.
 
 no external dependencies. pure go stdlib. one static binary.
 
+## contributing
+
+see [CONTRIBUTING.md](CONTRIBUTING.md). we welcome contributions of all kinds - bug fixes, new patterns, transport support, docs.
+
+good first issues are labeled `good first issue`.
+
 ## license
 
 MIT
