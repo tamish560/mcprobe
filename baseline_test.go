@@ -198,7 +198,7 @@ func TestSimpleHash(t *testing.T) {
 
 func TestSaveBaseline_InvalidPath(t *testing.T) {
 	snap := &ServerSnapshot{
-		Info: ServerInfo{Name: "test", Version: "1.0"},
+		Info:  ServerInfo{Name: "test", Version: "1.0"},
 		Tools: []Tool{{Name: "tool1"}},
 	}
 	err := SaveBaseline(snap, "/nonexistent/dir/baseline.json")
@@ -220,7 +220,7 @@ func TestLoadBaseline_InvalidJSON(t *testing.T) {
 
 func TestSaveBaseline_WithServerName(t *testing.T) {
 	snap := &ServerSnapshot{
-		Info: ServerInfo{Name: "my-server", Version: "2.0"},
+		Info:  ServerInfo{Name: "my-server", Version: "2.0"},
 		Tools: []Tool{{Name: "read", Description: "read files"}},
 	}
 	tmpDir, _ := os.MkdirTemp("", "mcprobe-test")
