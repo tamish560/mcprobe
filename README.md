@@ -209,6 +209,10 @@ total: 100 tests. 58.6% coverage. all pass.
 
 no external dependencies. pure go stdlib. one static binary.
 
+## tech
+
+`go` `stdlib only` `single binary` `zero dependencies` `SARIF` `MCP protocol`
+
 ## contributing
 
 see [CONTRIBUTING.md](CONTRIBUTING.md). we welcome contributions of all kinds - bug fixes, new patterns, transport support, docs.
