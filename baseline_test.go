@@ -195,3 +195,45 @@ func TestSimpleHash(t *testing.T) {
 		t.Error("expected different hash for different input")
 	}
 }
+
+func TestSaveBaseline_InvalidPath(t *testing.T) {
+	snap := &ServerSnapshot{
+		Info: ServerInfo{Name: "test", Version: "1.0"},
+		Tools: []Tool{{Name: "tool1"}},
+	}
+	err := SaveBaseline(snap, "/nonexistent/dir/baseline.json")
+	if err == nil {
+		t.Fatal("expected error for invalid path")
+	}
+}
+
+func TestLoadBaseline_InvalidJSON(t *testing.T) {
+	tmpDir, _ := os.MkdirTemp("", "mcprobe-test")
+	defer os.RemoveAll(tmpDir)
+	path := tmpDir + "/bad.json"
+	os.WriteFile(path, []byte("not valid json{"), 0644)
+	_, err := LoadBaseline(path)
+	if err == nil {
+		t.Fatal("expected error for invalid JSON")
+	}
+}
+
+func TestSaveBaseline_WithServerName(t *testing.T) {
+	snap := &ServerSnapshot{
+		Info: ServerInfo{Name: "my-server", Version: "2.0"},
+		Tools: []Tool{{Name: "read", Description: "read files"}},
+	}
+	tmpDir, _ := os.MkdirTemp("", "mcprobe-test")
+	defer os.RemoveAll(tmpDir)
+	path := tmpDir + "/baseline.json"
+	if err := SaveBaseline(snap, path); err != nil {
+		t.Fatalf("SaveBaseline: %v", err)
+	}
+	loaded, err := LoadBaseline(path)
+	if err != nil {
+		t.Fatalf("LoadBaseline: %v", err)
+	}
+	if loaded.ServerName != "my-server" {
+		t.Fatalf("expected server name 'my-server', got %s", loaded.ServerName)
+	}
+}
